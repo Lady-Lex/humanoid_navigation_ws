@@ -1,4 +1,4 @@
-image: /home/lexington2002/Workspace/maps/roban_museum/roban_museum.pgm
+image: roban_museum.pgm
 resolution: 0.050000
 origin: [-1.409646, -4.349221, 0.000000]
 # origin: [4.349221, -1.409646, 1.570796]
