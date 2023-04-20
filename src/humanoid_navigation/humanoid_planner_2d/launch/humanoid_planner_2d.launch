@@ -1,5 +1,5 @@
 <launch>
-	<arg name="map_file" default="/home/lexington2002/Workspace/maps/roban_museum/roban_museum.yaml"/>
+	<arg name="map_file" default="$(find humanoid_planner_2d)/map/roban_museum/roban_museum.yaml"/>
 	<arg name="open_rviz" default="true"/>
 
 	<node pkg="humanoid_planner_2d" type="sbpl_2d_planner_node" name="humanoid_planner_2d" output="screen" />

@@ -100,6 +100,7 @@ protected:
   double path_costs_;
   
   static const unsigned char OBSTACLE_COST = 20;
+  static const unsigned char SHADOW_RADIUS = 5;
 
 };
 

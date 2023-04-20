@@ -26,5 +26,10 @@
         "/home/lexington2002/Workspace/turtlebot3_ws/devel/lib/python2.7/dist-packages",
         "/opt/ros/melodic/lib/python2.7/dist-packages",
         "/home/lexington2002/Workspace/LVI-SAM_ws/devel/lib/python2.7/dist-packages"
-    ]
+    ],
+    "files.associations": {
+        "chrono": "cpp",
+        "random": "cpp",
+        "limits": "cpp"
+    }
 }

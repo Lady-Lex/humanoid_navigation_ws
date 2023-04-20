@@ -26,6 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 #include "humanoid_planner_2d/SBPLPlanner2D.h"
 
 SBPLPlanner2D::SBPLPlanner2D()
@@ -181,6 +182,7 @@ bool SBPLPlanner2D::plan(){
     pose.pose.position.x = wx;
     pose.pose.position.y = wy;
     pose.pose.position.z = 0.0;
+    pose.pose.orientation.z = goal_pose_.orientation.z;
     path_.poses.push_back(pose);
   }
 
@@ -204,14 +206,53 @@ bool SBPLPlanner2D::updateMap(gridmap_2d::GridMap2DPtr map){
   map_.reset(new gridmap_2d::GridMap2D(*map));
   map_->inflateMap(robot_radius_);
 
+  int GridLocal[map_->getInfo().width][map_->getInfo().height] = {0};
+  for(unsigned int j = 0; j < map_->getInfo().height; ++j)
+    for(unsigned int i = 0; i < map_->getInfo().width; ++i)
+        GridLocal[i][j]=0;
 
   for(unsigned int j = 0; j < map_->getInfo().height; ++j){
     for(unsigned int i = 0; i < map_->getInfo().width; ++i){
-      if (map_->isOccupiedAtCell(i,j))
-        planner_environment_->UpdateCost(i, j, OBSTACLE_COST);
-      else
-        planner_environment_->UpdateCost(i,j,0);
+      if (map_->isOccupiedAtCell(i,j)) {
+        GridLocal[i][j]=OBSTACLE_COST;
+        // 计算阴影（弱栅格）
+        for(int k = 1; k <= SHADOW_RADIUS; k++) {
+          if((i-k >= 0) && (i-k < map_->getInfo().width) && (map_->isOccupiedAtCell(i-k,j))==false) {
+            int temp = GridLocal[i-k][j];
+            temp = SHADOW_RADIUS - k;
+            if(GridLocal[i-k][j] < temp)
+                GridLocal[i-k][j] = temp;
+          }
 
+          if((i+k >= 0) && (i+k < map_->getInfo().width) && (map_->isOccupiedAtCell(i+k,j))==false) {
+            int temp = GridLocal[i+k][j];
+            temp = SHADOW_RADIUS - k;
+            if(GridLocal[i+k][j] < temp)
+                GridLocal[i+k][j] = temp;
+          }
+
+          if((j-k >= 0) && (j-k < map_->getInfo().width) && (map_->isOccupiedAtCell(i,j-k))==false) {
+            int temp = GridLocal[i][j-k];
+            temp = SHADOW_RADIUS - k;
+            if(GridLocal[i][j-k] < temp)
+                GridLocal[i][j-k] = temp;
+          }
+
+          if((j+k >= 0) && (j+k < map_->getInfo().width) && (map_->isOccupiedAtCell(i,j+k))==false) {
+            int temp = GridLocal[i][j+k];
+            temp = SHADOW_RADIUS - k;
+            if(GridLocal[i][j+k] < temp)
+                GridLocal[i][j+k] = temp;
+          }
+        }
+
+      }
+    }
+  }
+
+  for(unsigned int j = 0; j < map_->getInfo().height; ++j){
+    for(unsigned int i = 0; i < map_->getInfo().width; ++i){
+      planner_environment_->UpdateCost(i,j,GridLocal[i][j]);
     }
   }
 
